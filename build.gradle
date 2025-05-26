@@ -1,0 +1,202 @@
+import java.util.regex.Pattern
+
+plugins {
+	id "architectury-plugin" version "3.4-SNAPSHOT"
+	id "dev.architectury.loom" version "1.10-SNAPSHOT" apply false
+
+	id "com.github.johnrengelman.shadow" version "7.1.2" apply false
+
+	id "com.modrinth.minotaur" version "2.+" apply false
+	id "net.darkhax.curseforgegradle" version "1.1.18" apply false
+}
+
+apply from: "$rootDir/publishing.gradle"
+
+boolean isModVersionDefined = project.properties["mod_version"] == null ||
+		project.properties["mod_version"].toString().length() == 0;
+
+String modVer = isModVersionDefined
+		? "indev"
+		: project.properties["mod_version"].toString()
+
+ext.formattedBaseVersion = "%s+%s".formatted(modVer, project.properties["minecraft_version"])
+
+
+architectury {
+	minecraft = rootProject.minecraft_version
+}
+
+subprojects {
+	apply plugin: "dev.architectury.loom"
+
+	loom {
+		silentMojangMappingsLicense()
+	}
+
+	dependencies {
+		minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
+
+		if(project.parchment_version != "") {
+			mappings loom.layered() {
+				officialMojangMappings()
+				parchment("org.parchmentmc.data:${project.parchment_version}@zip")
+			}
+		} else {
+			mappings loom.officialMojangMappings()
+		}
+	}
+
+	processResources {
+		filteringCharset "UTF-8"
+
+		HashMap modifiedSrc = new HashMap<>(project.properties)
+		modifiedSrc.put("mod_id", project.properties["archives_base_name"].toString().toLowerCase())
+		modifiedSrc.put("version", formattedBaseVersion)
+
+		modifiedSrc.put("supported_minecraft_versions_fabric", getFabricVersionString(modifiedSrc))
+		modifiedSrc.put("supported_minecraft_versions_forge", getForgeVersionString(modifiedSrc))
+		modifiedSrc.put("supported_minecraft_versions_neoforge", getForgeVersionString(modifiedSrc))
+
+		filesMatching("META-INF/mods.toml") {
+			expand modifiedSrc
+		}
+
+		filesMatching("META-INF/neoforge.mods.toml") {
+			expand modifiedSrc
+		}
+
+		filesMatching("fabric.mod.json") {
+			expand modifiedSrc
+		}
+
+	}
+}
+
+allprojects {
+	apply plugin: "java"
+	apply plugin: "architectury-plugin"
+	apply plugin: "maven-publish"
+
+	base.archivesName = rootProject.archives_base_name
+	group = rootProject.maven_group
+	version = "%s.%s".formatted(formattedBaseVersion, project.name)
+
+	repositories {
+		maven {
+			name = 'ParchmentMC'
+			url = "https://maven.parchmentmc.org/"
+		}
+
+		// Mod Deps
+		maven { url "https://maven.shedaniel.me/" }
+		maven { url "https://maven.terraformersmc.com/releases/" }
+		maven {
+			name = "Modrinth"
+			url = "https://api.modrinth.com/maven"
+			content {
+				includeGroup "maven.modrinth"
+			}
+		}
+		maven {
+			url = "https://www.cursemaven.com/"
+			content {
+				includeGroup "curse.maven"
+			}
+		}
+		maven {
+			name 'Xander Maven'
+			url 'https://maven.isxander.dev/releases'
+		}
+	}
+
+
+	tasks.withType(JavaCompile).configureEach {
+		options.encoding = "UTF-8"
+		options.release.set(21)
+
+		// Shows details related to the xlint "unchecked" and "derecation" warning notes.
+		if (rootProject.properties["show_dev_warnings"] == "true") {
+			it.options.deprecation = true
+			it.options.compilerArgs << '-Xlint:unchecked'
+		}
+	}
+
+	java {
+		withSourcesJar()
+	}
+}
+
+
+static def formatAsBadgeSafe(var val) {
+	if(!(val instanceof String))
+		return val
+
+	// Badges break if hyphens are present.
+	return ((String) val).replaceAll("[- /]", "_")
+}
+
+tasks.register('updateDocTemplates', Copy) {
+	group = "mod-utils"
+	description = "Takes documents from a folder, expands any template variables, and then copies them to the root."
+	doNotTrackState("Stops gradle from screaming - It doesn't let files get copied to the root if tracking state.")
+
+	Map filteredSrc = rootProject.properties.collectEntries {
+		k, v -> [(k): formatAsBadgeSafe(v) ]
+	}
+
+	from "/template_docs"
+
+	into "/"
+	include "**"
+	exclude "media/**"
+
+	expand filteredSrc
+}
+
+def cleanAll = tasks.register('cleanAll') {
+	group = "modgradle"
+	description = "Runs a clean operation on every project"
+	dependsOn allprojects.collect({ it.tasks.named('clean') })
+}
+
+def collectJars = tasks.register('collectJars', Copy) {
+	group = "modgradle"
+	description = "Used to gather all the jars that can be published"
+	duplicatesStrategy = DuplicatesStrategy.INCLUDE
+	dependsOn subprojects.collect({
+		def discovered = it.tasks.findAll {
+			it.name == "remapSourcesJar" || it.name == "remapJar"
+		}
+
+		return discovered == null
+				? []
+				: discovered;
+	})
+
+	def jarHolderDirs = []
+
+	subprojects.each {
+		File target = new File(it.buildDir, "libs")
+		jarHolderDirs.add(target)
+	}
+
+
+	from jarHolderDirs
+	include("*-release.jar")
+	rename { String name -> name.substring(0, name.length() - 12) + ".jar" }
+	into "$buildDir/for-publishing"
+}
+
+tasks.register("publish-all") {
+	group = "modgradle"
+	description = "Publishes all subprojects on Modrinth & CurseForge"
+	dependsOn subprojects.collect({
+		def discoveredTasks = it.tasks.findAll {
+			it.name == "curseforge" || it.name == "modrinth"
+		}
+
+		return discoveredTasks == null
+				? []
+				: discoveredTasks;
+	})
+}

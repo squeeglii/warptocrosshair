@@ -1,0 +1,38 @@
+import java.util.regex.Pattern
+
+pluginManagement {
+    repositories {
+        maven {
+            name = 'Architectury'
+            url = "https://maven.architectury.dev/"
+        }
+        maven {
+            name = 'Fabric'
+            url = 'https://maven.fabricmc.net/'
+        }
+        maven {
+            name = 'NeoForge'
+            url = "https://maven.neoforged.net/releases"
+        }
+        maven {
+            name = 'Forge'
+            url = "https://maven.minecraftforge.net"
+        }
+        gradlePluginPortal()
+    }
+}
+
+var platforms = properties.get("enabled_platforms")
+
+if(!(platforms instanceof String)) {
+    throw new IllegalStateException("No platforms are enabled (%s) - check 'enabled_platforms' in root gradle.properties")
+}
+
+String[] platformTokens = platforms.split(Pattern.quote(","))
+
+include("common")
+if(platformTokens.contains("fabric")) include("fabric")
+if(platformTokens.contains("neoforge")) include("neoforge")
+if(platformTokens.contains("forge")) include("forge")
+
+rootProject.name = "WarpToCrosshair"

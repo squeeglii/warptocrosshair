@@ -1,0 +1,24 @@
+{
+
+    "key.categories.warptocrosshair": "Warp-To-Crosshair",
+    "key.warptocrosshair.warp": "Warp To Crosshair",
+
+    "notif.warptocrosshair.warp.miss": "No target to warp to.",
+    "notif.warptocrosshair.warp.too_close": "That point is too close to warp to!",
+    "notif.warptocrosshair.warp.no_permission": "You do not have permission to warp in this world.",
+    "notif.warptocrosshair.warp.success": "Warp!",
+
+    "config.cg.value.distance": "%1$.2f block(s)",
+    "config.cg.value.ticks": "%1$.2f tick(s)",
+    "config.cg.value.percentage": "%1$.2f \uFF05",
+
+    "config.warptocrosshair.title": "Warp-To-Crosshair",
+    "config.warptocrosshair.category.main": "Main",
+    "config.warptocrosshair.category.tooltip": "Warp-To-Crosshair's feature configuration",
+
+    "config.warptocrosshair.option.bufferDistance": "Buffer Distance",
+    "config.warptocrosshair.option.bufferDistance.description.0": "Determines how far you are placed from your warp target",
+    "config.warptocrosshair.option.playSounds": "Are Sounds Enabled?",
+    "config.warptocrosshair.option.playSounds.description.0": "Enables / disables the ticking sounds used in the warp effect"
+
+}

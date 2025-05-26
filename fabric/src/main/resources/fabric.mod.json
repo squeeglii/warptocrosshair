@@ -1,0 +1,37 @@
+{
+    "schemaVersion": 1,
+    "id": "${mod_id}",
+    "version": "${version}",
+
+    "name": "Warp-To-Crosshair",
+    "description": "Zip around with middle-click (or whatever you set it to, it's configurable!)",
+    "authors": [ "CG360" ],
+    "contact": {
+        "homepage": "https://github.com/CloudG360/warptocrosshair",
+        "sources": "https://github.com/CloudG360/warptocrosshair"
+    },
+
+    "license": "MIT",
+    "icon": "assets/warptocrosshair/icon.png",
+
+    "environment": "*",
+    "entrypoints": {
+        "client": [
+            "me.cg360.mod.warptocrosshair.entrypoint.fabric.WarpToCrosshairModFabric::init"
+        ],
+        "modmenu": [
+            "me.cg360.mod.warptocrosshair.compat.fabric.ModMenuIntegration"
+        ]
+    },
+    "mixins": [
+        "warptocrosshair.mixins.json"
+    ],
+
+    "depends": {
+        "fabricloader": ">=${fabric_loader_version}",
+        "fabric": "*",
+        "minecraft": "${supported_minecraft_versions_fabric}",
+        "java": ">=21",
+        "yet_another_config_lib_v3": ">=${yacl_version}"
+    }
+}
