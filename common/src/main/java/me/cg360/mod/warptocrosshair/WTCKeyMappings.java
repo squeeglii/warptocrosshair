@@ -12,7 +12,7 @@ public class WTCKeyMappings {
     private static final ArrayList<KeyMapping> KEY_MAPPINGS = new ArrayList<>();
 
 
-    public static final KeyMapping WARP_ACTION = defineMapping(new KeyMapping("key.warptocrosshair.warp", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_COMMA, "key.categories.warptocrosshair"));
+    public static final KeyMapping WARP_ACTION = defineMapping(new KeyMapping("key.warptocrosshair.warp", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_LEFT_ALT, "key.categories.warptocrosshair"));
 
 
     private static KeyMapping defineMapping(KeyMapping k) {

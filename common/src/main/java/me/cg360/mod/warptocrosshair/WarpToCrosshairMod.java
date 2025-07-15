@@ -36,6 +36,8 @@ public class WarpToCrosshairMod {
     }
 
     public static void tickClient(Minecraft client) {
+        //if(!WTCKeyMappings.WARP_ACTION.consumeClick()) return;
+
         if(!WTCKeyMappings.WARP_ACTION.isDown()) {
             wasWarpMappingProcessed = false;
             return;
