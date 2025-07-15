@@ -85,8 +85,8 @@ modrinth {
     String[] versions = getSupportedVersions(project.properties);
 
     token = getModrinthToken(project)
-    projectId = "bridging-mod"
-    versionName = "Bridging Mod ${formattedBaseVersion} (NeoForge)"
+    projectId = "wtc"
+    versionName = "Warp-To-Crosshair ${formattedBaseVersion} (NeoForge)"
     versionNumber = project.version.toString()
     versionType = project.properties["release_type"].toString()
     uploadFile = remapJar
@@ -122,7 +122,7 @@ tasks.register('curseforge', TaskPublishCurseForge) {
         debugMode = true
 
     def mainFile = upload(projectId, remapJar)
-    mainFile.displayName = "[NeoForge %s] v%s Bridging Mod".formatted(mcVer, projectVer)
+    mainFile.displayName = "[NeoForge %s] v%s Warp-To-Crosshair".formatted(mcVer, projectVer)
     mainFile.addModLoader("neoforge")
     mainFile.releaseType = project.properties["release_type"]
 

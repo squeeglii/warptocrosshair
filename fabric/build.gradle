@@ -69,8 +69,8 @@ modrinth {
     String[] versions = getSupportedVersions(project.properties);
 
     token = getModrinthToken(project)
-    projectId = "bridging-mod"
-    versionName = "Bridging Mod ${formattedBaseVersion} (Fabric)"
+    projectId = "wtc"
+    versionName = "Warp-To-Crosshair ${formattedBaseVersion} (Fabric)"
     versionNumber = project.version.toString()
     versionType = project.properties["release_type"].toString()
     uploadFile = remapJar
@@ -108,7 +108,7 @@ tasks.register('curseforge', TaskPublishCurseForge) {
         debugMode = true
 
     def mainFile = upload(projectId, remapJar)
-    mainFile.displayName = "[Fabric %s] v%s Bridging Mod".formatted(mcVer, projectVer)
+    mainFile.displayName = "[Fabric %s] v%s Warp-To-Crosshair".formatted(mcVer, projectVer)
     mainFile.addModLoader("fabric")
     mainFile.addModLoader("quilt")
     mainFile.releaseType = project.properties["release_type"]
